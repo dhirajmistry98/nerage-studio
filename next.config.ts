@@ -7,9 +7,9 @@ const nextConfig: NextConfig = {
   /* Disable dev indicators badge */
   devIndicators: false,
 
-  /* Compiler & bundling options */
-  cacheComponents: true,
-  partialPrefetching: true,
+  /* Export static HTML files to 'out' directory for Render / static hosts */
+  output: "export",
+  images: { unoptimized: true },
 
   turbopack: {
     rules: {
