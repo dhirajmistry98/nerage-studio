@@ -1,69 +1,101 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import Navigation from "@/components/Navigation";
+import Hero from "@/components/Hero";
+import Intro from "@/components/Intro";
+import ProjectShowcase from "@/components/ProjectShowcase";
+import ProcessTimeline from "@/components/ProcessTimeline";
+import CloserCTA from "@/components/CloserCTA";
+import Footer from "@/components/Footer";
+import NotFound from "@/app/not-found";
+
+const VALID_SECTIONS = new Set([
+  "",
+  "top",
+  "about",
+  "work",
+  "process",
+  "closer",
+]);
 
 export default function Home() {
+  const [isInvalidPath, setIsInvalidPath] = useState(false);
+
+  useEffect(() => {
+    // Check initial hash on load or hashchange
+    const validateHash = () => {
+      const rawHash = window.location.hash.replace(/^#/, "");
+
+      // If someone types an invalid sub-route via hash (e.g., #work/a, #foo/bar, #invalid)
+      if (rawHash) {
+        if (rawHash.includes("/") || !VALID_SECTIONS.has(rawHash.toLowerCase())) {
+          setIsInvalidPath(true);
+          return;
+        }
+
+        setIsInvalidPath(false);
+        // If it's a valid section, scroll to it and immediately strip '#' from the address bar!
+        const el = document.getElementById(rawHash);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+        if (window.history.replaceState) {
+          window.history.replaceState(null, "", window.location.pathname);
+        }
+      } else {
+        setIsInvalidPath(false);
+      }
+    };
+
+    validateHash();
+    window.addEventListener("hashchange", validateHash);
+    return () => window.removeEventListener("hashchange", validateHash);
+  }, []);
+
+  const handleNavClick = (targetId: string) => {
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+    // Clean URL bar completely (No #)
+    if (typeof window !== "undefined" && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  };
+
+  // If user navigated to an invalid sub-route (e.g., #work/a), show 404 page
+  if (isInvalidPath) {
+    return <NotFound />;
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      {/* 35mm Subtle Film Grain Texture Overlay */}
+      <div className="film-grain" aria-hidden="true" />
+
+      {/* Floating Bottom Navigation Pill & Top Wordmark (No # in URLs) */}
+      <Navigation />
+
+      <main className="flex-1 w-full flex flex-col relative z-10">
+        {/* Fullscreen Video Hero with Status Reel and Word Blur Reveal */}
+        <Hero />
+
+        {/* Studio Introduction and Two-Column Manifesto */}
+        <Intro />
+
+        {/* Selected Project Launches Showcase with Video Cards and Cinema Modal */}
+        <ProjectShowcase />
+
+        {/* 7-Day Film Launch Sprint Scrubber (Process Timeline) */}
+        <ProcessTimeline />
+
+        {/* Closer Call to Action with macOS Dock Magnification */}
+        <CloserCTA />
       </main>
-    </div>
+
+      {/* Giant Typography Footer with Social Links */}
+      <Footer />
+    </>
   );
 }
